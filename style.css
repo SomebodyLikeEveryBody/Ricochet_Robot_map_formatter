@@ -1,0 +1,401 @@
+html
+{
+    font-family: sans-serif;
+    background-color: black;
+    color: white;
+
+	--c-all: purple;
+	--c-grey: #bdbdbd;
+	--c-red: red;
+	--c-green: #5ac75f;
+	--c-yellow: yellow;
+	--c-blue: #597aff;
+    --c-grid: #333;
+}
+
+body
+{
+    margin: 5px;
+    padding: 0px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+#welcome_screen
+{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: grey;
+}
+
+.robot_choosebox_container
+{
+    border: white 1px dotted;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.robot_choosebox
+{
+    display: inline-block;
+    border: white 1px solid;
+    width: 30%;
+    margin-bottom: 10px;
+}
+
+.mirror_choosebox_container
+{
+    border: white 1px dotted;
+    padding: 5px;
+}
+
+.mirror_choosebox
+{
+    display: inline-block;
+    border: white 1px solid;
+    width: 30%;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+section#settings
+{
+    padding: 10px;
+    border: white 3px solid;
+    border-radius: 5px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+section#settings #title
+{
+    text-decoration: underline;
+    text-align: center;
+    font-size: 4vh;
+    width: auto;
+    margin-bottom: 10px;
+}
+
+section#choose_cell, section#control_panel
+{
+    border: white 1px solid;
+    padding: 10px;
+    background-color: #333;
+    width: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+section#control_panel
+{
+    background-color: #211701;
+}
+
+
+section#control_panel button
+{
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 15px;
+}
+section#control_panel textarea
+{
+    resize: none;
+    width: 50%;
+    height: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 15px;
+    border: white 1px solid;
+    background-color: #333;
+    color: white;
+    font-weight: bold;
+}
+
+section#cell_catalog
+{
+    flex-grow: 0.5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+div.cell_choosebox
+{
+    width: 14vh;
+    height: 14vh;
+    border: none;
+    background-color: grey;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    border: white 1px solid;
+    cursor: pointer;
+}
+
+section.choosebox_container
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+}
+
+section.multiple_container
+{
+}
+
+div#chooseboxN
+{
+    background-image: url('./imgs/wall_N.png');
+}
+
+div#chooseboxS
+{
+    background-image: url('./imgs/wall_S.png');
+}
+
+div#chooseboxE
+{
+    background-image: url('./imgs/wall_E.png');
+}
+
+div#chooseboxW
+{
+    background-image: url('./imgs/wall_W.png');
+}
+
+div#chooseboxNW
+{
+    background-image: url('./imgs/wall_NW.png');
+}
+
+div#chooseboxWS
+{
+    background-image: url('./imgs/wall_WS.png');
+}
+
+div#chooseboxSE
+{
+    background-image: url('./imgs/wall_SE.png');
+}
+
+div#chooseboxEN
+{
+    background-image: url('./imgs/wall_EN.png');
+}
+
+div#chooseboxNWS
+{
+    background-image: url('./imgs/wall_NWS.png');
+}
+
+div#chooseboxWSE
+{
+    background-image: url('./imgs/wall_WSE.png');
+}
+
+div#chooseboxNES
+{
+    background-image: url('./imgs/wall_NES.png');
+}
+
+div#chooseboxENW
+{
+    background-image: url('./imgs/wall_ENW.png');
+}
+
+div#chooseboxNWSE
+{
+    background-image: url('./imgs/wall_NWSE.png');
+}
+
+table#board
+{
+    width: calc(100vh - 10px);
+    height: calc(100vh - 10px);
+    margin: 0px;
+    margin-right: 30px;
+    background-color: var(--c-grid);
+    border-spacing: 3px;
+    border: white 5px solid;
+}
+
+.cell
+{
+    text-align: center;
+    background-color: black;
+    width: 6.25%;
+    height: 6.25%;
+}
+
+.cell_0
+{
+}
+
+.cell_N
+{
+    border-top: white 5px solid;
+}
+
+.cell_S
+{
+    border-bottom: white 5px solid;
+}
+
+.cell_E
+{
+    border-right: white 5px solid;
+}
+
+.cell_W
+{
+    border-left: white 5px solid;
+}
+
+.mirror_gen
+{
+	stroke-linecap: round;
+	stroke-width: 0.1;
+}
+
+.mirror_c-0
+{
+    stroke: var(--c-0);
+}
+
+.mirror_c-1
+{
+    stroke: var(--c-1);
+}
+
+.mirror_c-2
+{
+    stroke: var(--c-2);
+}
+
+
+.mirror_c-3
+{
+    stroke: var(--c-3);
+}
+
+.mirror_c-4
+{
+    stroke: var(--c-4);
+}
+
+.robot
+{
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    margin: auto;
+    border: white 2px dotted;
+}
+
+#robot_blue
+{
+    background-color: #597aff;
+}
+
+#robot_red
+{
+    background-color: red;
+}
+
+#robot_green
+{
+    background-color: #5ac75f;
+}
+
+#robot_yellow
+{
+    background-color: yellow;
+}
+
+#robot_grey
+{
+    background-color: #bdbdbd;
+}
+
+#robot_blue_choosebox
+{
+    background-color: #597aaf;
+}
+
+#robot_red_choosebox
+{
+    background-color: red;
+}
+
+#robot_green_choosebox
+{
+    background-color: #5ac75f;
+}
+
+#robot_yellow_choosebox
+{
+    background-color: yellow;
+}
+
+#robot_grey_choosebox
+{
+    background-color: #bdbbdb;
+}
+
+#mirror_blue_choosebox
+{
+    background-color: #597aaf;
+}
+
+#mirror_red_choosebox
+{
+    background-color: red;
+}
+
+#mirror_green_choosebox
+{
+    background-color: #5ac75f;
+}
+
+#mirror_yellow_choosebox
+{
+    background-color: yellow;
+}
+
+#mirror_grey_choosebox
+{
+    background-color: #bdbbdb;
+}
+
+td.cell:hover
+{
+    background-color: grey;
+}
+
+
+@media only screen and (max-width: 1000px) {
+    body
+    {
+        flex-direction: column;
+    }
+
+
+    svg#board
+    {
+    }
+
+    section#settings
+    {
+    }
+}

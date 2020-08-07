@@ -803,5 +803,5 @@ $(function () {
     });
 
     manager = new RobotManager(boardGame);
-    beautiful();
+//    beautiful();
 });

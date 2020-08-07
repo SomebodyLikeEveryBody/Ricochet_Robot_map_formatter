@@ -26,6 +26,154 @@ g_board = [
 /*16*/      ['WS', 'S', 'SN', 'S', 'S', 'SE', 'SW', 'S', 'S', 'S', 'SE', 'SW', 'S', 'SN', 'S', 'SE'],
 ];
 
+
+function beautiful () {
+    let dirs = ['N', 'S', 'E', 'W'];
+    let lRobots = ['blue', 'yellow', 'green', 'red', 'grey'];
+    let dir = '';
+    let robot = '';
+    for (let i = 0; i < 1000; i++) {
+        dir = dirs[Math.floor(Math.random() * dirs.length)];
+        robot = lRobots[Math.floor(Math.random() * lRobots.length)];
+        manager.moveRobot(robot, dir);
+        console.log(dir);
+    }
+}
+
+function aleat() {
+    let dirs = ['N', 'S', 'E', 'W'];
+    let lRobots = ['blue', 'yellow', 'green', 'red', 'grey'];
+    let dir = '';
+    let robot = '';
+    for (let i = 0; i < 1000; i++) {
+        dir = dirs[Math.floor(Math.random() * dirs.length)];
+        robot = lRobots[Math.floor(Math.random() * lRobots.length)];
+        manager.moveRobot(robot, dir);
+        console.log(dir);
+    }
+
+}
+
+/*
+ *
+ * */
+function RobotManager(pBoardGame) {
+
+    this.boardGame = pBoardGame;
+
+    this.moveRobotTo = function (pRobotColor, pCoords) {
+        let robotEl = $('#robot_' + pRobotColor);
+
+        robotEl.slideUp(100, function () {
+            robotEl.appendTo('td#coord_' + pCoords.y + '_' + pCoords.x);
+        });
+
+        robotEl.slideDown(100);
+        this.boardGame.robots[pRobotColor] = pCoords;
+    };
+
+    this.robotHasWallAt = function (pRobotColor, pDir) {
+        if($('td#coord_' + this.boardGame.robots[pRobotColor].y + '_' + this.boardGame.robots[pRobotColor].x).hasClass('cell_' + pDir)) {
+            return (true);
+        }
+
+        return (false);
+    }
+
+    this.robotHasRobotAt = function (pRobotColor, pDir) {
+        let coords = {};
+        Object.assign(coords, this.boardGame.robots[pRobotColor]);
+
+        switch (pDir) {
+            case 'N':
+                coords.y -= 1;
+                break;
+            case 'S':
+                coords.y += 1;
+                break;
+            case 'E':
+                coords.x += 1;
+                break;
+            case 'W':
+                coords.x -= 1;
+                break;
+        }
+
+        if (this.boardGame.boardChecker.checkCoords(coords) === true) {
+            if ($('td#coord_' + coords.y + '_' + coords.x + ' div').length === 0) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    this.robotHasNoObstacleAt = function (pRobotColor, pDir) {
+        if (this.robotHasWallAt(pRobotColor, pDir) || this.robotHasRobotAt(pRobotColor, pDir)) {
+            return false;
+        }
+
+        return true;
+    };
+
+    this.moveRobot1North = function (pRobotColor) {
+        this.moveRobotTo(pRobotColor, {x: this.boardGame.robots[pRobotColor].x, y: this.boardGame.robots[pRobotColor].y - 1});
+    }
+
+    this.moveRobot1South = function (pRobotColor) {
+        this.moveRobotTo(pRobotColor, {x: this.boardGame.robots[pRobotColor].x, y: this.boardGame.robots[pRobotColor].y + 1});
+    }
+
+    this.moveRobot1East = function (pRobotColor) {
+        this.moveRobotTo(pRobotColor, {x: this.boardGame.robots[pRobotColor].x + 1, y: this.boardGame.robots[pRobotColor].y});
+    }
+
+    this.moveRobot1West = function (pRobotColor) {
+        this.moveRobotTo(pRobotColor, {x: this.boardGame.robots[pRobotColor].x - 1, y: this.boardGame.robots[pRobotColor].y});
+    }
+
+    this.moveRobotNorth = function (pRobotColor) {
+        while (this.robotHasNoObstacleAt(pRobotColor, 'N')) {
+            this.moveRobot1North(pRobotColor);
+        }
+    };
+
+    this.moveRobotSouth = function (pRobotColor) {
+        while (this.robotHasNoObstacleAt(pRobotColor, 'S')) {
+            this.moveRobot1South(pRobotColor);
+        }
+    };
+
+    this.moveRobotEast = function (pRobotColor) {
+        while (this.robotHasNoObstacleAt(pRobotColor, 'E')) {
+            this.moveRobot1East(pRobotColor);
+        }
+    };
+
+    this.moveRobotWest = function (pRobotColor) {
+        while (this.robotHasNoObstacleAt(pRobotColor, 'W')) {
+            this.moveRobot1West(pRobotColor);
+        }
+    };
+
+    this.moveRobot = function (pRobotColor, pDir) {
+        switch (pDir) {
+            case 'N':
+                this.moveRobotNorth(pRobotColor);
+                break;
+            case 'S':
+                this.moveRobotSouth(pRobotColor);
+                break;
+            case 'E':
+                this.moveRobotEast(pRobotColor);
+                break;
+            case 'W':
+                this.moveRobotWest(pRobotColor);
+                break;
+        }
+    }
+}
+
 /*
  * BoardChecker:
  * ------------
@@ -203,10 +351,10 @@ function BoardGame(pBoard) {
     ];
 
     this.robots = {
-        blue: {x: 0, y: 0},
-        red: {x: 1, y: 0},
-        green: {x: 2, y: 0},
-        yellow: {x: 3, y: 0},
+        blue: {x: 0, y: 6},
+        red: {x: 0, y: 0},
+        green: {x: 2, y: 6},
+        yellow: {x: 9, y: 5},
         grey: {x: 4, y: 0},
     };
 
@@ -453,22 +601,10 @@ function BoardGame(pBoard) {
         }
     };
 
-    /*
-     * Generate random coords to place robots randomly
-     *
-     * The function ensures that each robot is not placed at the same place of
-     * another robot NEITHER in the coords {x from [7,8], y from [7,8]}
-     * So at first, it sets all robots coords of g_config at at null to permit an
-     * efficient comparison
-     *
-     * */
-    this.placeRobots = function (pConfig)
-    {
-        this.placeRobot($('#robot_blue'), this.robots.blue);
-        this.placeRobot($('#robot_red'), this.robots.red);
-        this.placeRobot($('#robot_green'), this.robots.green);
-        this.placeRobot($('#robot_yellow'), this.robots.yellow);
-        this.placeRobot($('#robot_grey'), this.robots.grey);
+    this.placeRobots = function () {
+        for (robotColor in this.robots) {
+            $('#robot_' + robotColor).appendTo($('#coord_' + this.robots[robotColor].y + '_' + this.robots[robotColor].x)).show(700);
+        }
     };
 
     /*
@@ -501,7 +637,7 @@ function KeyboardListener() {
                 $('#choose_cell').hide(200, function () {
                     $('#control_panel').fadeIn(200);
                 });
-                
+
                 break;
             //left arrow
             case 37:
@@ -589,7 +725,7 @@ function translateCellCode(pCode) {
 function updateFormatCode(pMap) {
     textAreaEl = $('textarea#format_code');
     textAreaEl.val('');
-    
+
     for (lineArray of pMap) {
         for (cellValue of lineArray) {
             textAreaEl.val(textAreaEl.val() + cellValue);
@@ -661,9 +797,11 @@ $(function () {
         }
     });
 
-    let count = 0;
     $('#show_format_code').click(function () {
         updateFormatCode(boardGame.map);
         textAreaEl.slideToggle(200).select();
     });
+
+    manager = new RobotManager(boardGame);
+    beautiful();
 });

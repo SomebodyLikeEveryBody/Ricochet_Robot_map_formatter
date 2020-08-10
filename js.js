@@ -45,13 +45,14 @@ function aleat() {
     let lRobots = ['blue', 'yellow', 'green', 'red', 'grey'];
     let dir = '';
     let robot = '';
-    for (let i = 0; i < 1000; i++) {
+    let moves = []
+    for (let i = 0; i < 100; i++) {
         dir = dirs[Math.floor(Math.random() * dirs.length)];
         robot = lRobots[Math.floor(Math.random() * lRobots.length)];
-        manager.moveRobot(robot, dir);
-        console.log(dir);
+        eval('moves.push({' + robot + ': dir})');
     }
 
+    return (moves);
 }
 
 /*
@@ -60,17 +61,6 @@ function aleat() {
 function RobotManager(pBoardGame) {
 
     this.boardGame = pBoardGame;
-
-    this.moveRobotTo = function (pRobotColor, pCoords) {
-        let robotEl = $('#robot_' + pRobotColor);
-
-        robotEl.slideUp(100, function () {
-            robotEl.appendTo('td#coord_' + pCoords.y + '_' + pCoords.x);
-        });
-
-        robotEl.slideDown(100);
-        this.boardGame.robots[pRobotColor] = pCoords;
-    };
 
     this.robotHasWallAt = function (pRobotColor, pDir) {
         if($('td#coord_' + this.boardGame.robots[pRobotColor].y + '_' + this.boardGame.robots[pRobotColor].x).hasClass('cell_' + pDir)) {
@@ -114,6 +104,17 @@ function RobotManager(pBoardGame) {
         }
 
         return true;
+    };
+
+    this.moveRobotTo = function (pRobotColor, pCoords) {
+        let robotEl = $('#robot_' + pRobotColor);
+
+        robotEl.slideUp(100, function () {
+            robotEl.appendTo('td#coord_' + pCoords.y + '_' + pCoords.x);
+        });
+
+        robotEl.slideDown(100);
+        this.boardGame.robots[pRobotColor] = pCoords;
     };
 
     this.moveRobot1North = function (pRobotColor) {
@@ -171,7 +172,23 @@ function RobotManager(pBoardGame) {
                 this.moveRobotWest(pRobotColor);
                 break;
         }
-    }
+    };
+
+    this.moveRobotThen = function (pRobotColor, pDir, pCallback) {
+        this.moveRobot(pRobotColor, pDir);
+        pCallback();
+    };
+
+    this.doMoves = function (pMoves) {
+        let count = 0;
+        for (const move of pMoves) {
+            let tempColor = Object.keys(move)[0];
+            let tempDir = Object.values(move)[0];
+            let that = this;
+
+            setTimeout(function () {that.moveRobot(tempColor, tempDir); console.log(tempColor+'--' + tempDir)}, count++ * 2000);
+        }
+    };
 }
 
 /*
@@ -802,6 +819,22 @@ $(function () {
         textAreaEl.slideToggle(200).select();
     });
 
-    manager = new RobotManager(boardGame);
-//    beautiful();
+    let manager = new RobotManager(boardGame);
+    let moves = [
+        {'blue': 'N'},
+        {'red': 'E'},
+        {'blue': 'S'},
+        {'yellow': 'N'},
+        {'grey': 'W'},
+        {'blue': 'E'},
+        {'blue': 'S'},
+        {'blue': 'W'},
+        {'red': 'N'},
+        {'red': 'E'},
+        {'red': 'S'},
+        {'red': 'W'}
+    ];
+
+    //manager.doMoves(moves);
+    manager.doMoves(aleat());
 });

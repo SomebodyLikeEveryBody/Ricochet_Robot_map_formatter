@@ -710,7 +710,7 @@ $(function () {
 
     $('#show_format_code').click(function () {
         mapCodeDisplayer.updateFormatCode();
-        $('textarea#format_code').slideToggle(200);
+        $('textarea#format_code').slideToggle(200).select();
     });
 
     $('span#close_cell_menu').click(function () {

@@ -383,6 +383,11 @@ td.cell:hover
     background-color: grey;
 }
 
+span#close_cell_menu
+{
+    float: right;
+    cursor: pointer;
+}
 
 @media only screen and (max-width: 1000px) {
     body

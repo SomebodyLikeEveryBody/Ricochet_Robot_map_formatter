@@ -57,138 +57,23 @@ function aleat() {
 
 /*
  *
+ *
  * */
-function RobotManager(pBoardGame) {
-
+function MapCodeDisplayer(pBoardGame) {
     this.boardGame = pBoardGame;
 
-    this.robotHasWallAt = function (pRobotColor, pDir) {
-        if($('td#coord_' + this.boardGame.robots[pRobotColor].y + '_' + this.boardGame.robots[pRobotColor].x).hasClass('cell_' + pDir)) {
-            return (true);
-        }
+    this.updateFormatCode = function () {
+        let textAreaEl = $('textarea#format_code');
+        textAreaEl.val('');
 
-        return (false);
-    }
-
-    this.robotHasRobotAt = function (pRobotColor, pDir) {
-        let coords = {};
-        Object.assign(coords, this.boardGame.robots[pRobotColor]);
-
-        switch (pDir) {
-            case 'N':
-                coords.y -= 1;
-                break;
-            case 'S':
-                coords.y += 1;
-                break;
-            case 'E':
-                coords.x += 1;
-                break;
-            case 'W':
-                coords.x -= 1;
-                break;
-        }
-
-        if (this.boardGame.boardChecker.checkCoords(coords) === true) {
-            if ($('td#coord_' + coords.y + '_' + coords.x + ' div').length === 0) {
-                return false;
+        for (lineArray of this.boardGame.map) {
+            for (cellValue of lineArray) {
+                textAreaEl.val(textAreaEl.val() + translateCellCode(cellValue) + ' ');
             }
+
+            textAreaEl.val(textAreaEl.val() + '\n');
         }
-
-        return true;
-    };
-
-    this.robotHasNoObstacleAt = function (pRobotColor, pDir) {
-        if (this.robotHasWallAt(pRobotColor, pDir) || this.robotHasRobotAt(pRobotColor, pDir)) {
-            return false;
-        }
-
-        return true;
-    };
-
-    this.moveRobotTo = function (pRobotColor, pCoords) {
-        let robotEl = $('#robot_' + pRobotColor);
-
-        robotEl.slideUp(100, function () {
-            robotEl.appendTo('td#coord_' + pCoords.y + '_' + pCoords.x);
-        });
-
-        robotEl.slideDown(100);
-        this.boardGame.robots[pRobotColor] = pCoords;
-    };
-
-    this.moveRobot1North = function (pRobotColor) {
-        this.moveRobotTo(pRobotColor, {x: this.boardGame.robots[pRobotColor].x, y: this.boardGame.robots[pRobotColor].y - 1});
     }
-
-    this.moveRobot1South = function (pRobotColor) {
-        this.moveRobotTo(pRobotColor, {x: this.boardGame.robots[pRobotColor].x, y: this.boardGame.robots[pRobotColor].y + 1});
-    }
-
-    this.moveRobot1East = function (pRobotColor) {
-        this.moveRobotTo(pRobotColor, {x: this.boardGame.robots[pRobotColor].x + 1, y: this.boardGame.robots[pRobotColor].y});
-    }
-
-    this.moveRobot1West = function (pRobotColor) {
-        this.moveRobotTo(pRobotColor, {x: this.boardGame.robots[pRobotColor].x - 1, y: this.boardGame.robots[pRobotColor].y});
-    }
-
-    this.moveRobotNorth = function (pRobotColor) {
-        while (this.robotHasNoObstacleAt(pRobotColor, 'N')) {
-            this.moveRobot1North(pRobotColor);
-        }
-    };
-
-    this.moveRobotSouth = function (pRobotColor) {
-        while (this.robotHasNoObstacleAt(pRobotColor, 'S')) {
-            this.moveRobot1South(pRobotColor);
-        }
-    };
-
-    this.moveRobotEast = function (pRobotColor) {
-        while (this.robotHasNoObstacleAt(pRobotColor, 'E')) {
-            this.moveRobot1East(pRobotColor);
-        }
-    };
-
-    this.moveRobotWest = function (pRobotColor) {
-        while (this.robotHasNoObstacleAt(pRobotColor, 'W')) {
-            this.moveRobot1West(pRobotColor);
-        }
-    };
-
-    this.moveRobot = function (pRobotColor, pDir) {
-        switch (pDir) {
-            case 'N':
-                this.moveRobotNorth(pRobotColor);
-                break;
-            case 'S':
-                this.moveRobotSouth(pRobotColor);
-                break;
-            case 'E':
-                this.moveRobotEast(pRobotColor);
-                break;
-            case 'W':
-                this.moveRobotWest(pRobotColor);
-                break;
-        }
-    };
-
-    this.moveRobotThen = function (pRobotColor, pDir, pCallback) {
-        this.moveRobot(pRobotColor, pDir);
-        pCallback();
-    };
-
-    this.doMoves = function (pMoves) {
-        let count = 0;
-        for (const move of pMoves) {
-            let tempColor = Object.keys(move)[0];
-            let tempDir = Object.values(move)[0];
-            let that = this;
-
-            setTimeout(function () {that.moveRobot(tempColor, tempDir); console.log(tempColor+'--' + tempDir)}, count++ * 2000);
-        }
-    };
 }
 
 /*
@@ -439,7 +324,6 @@ function BoardGame(pBoard) {
      * */
     this.drawGrid = function (pBoard) {
         let cellClasses = this.getCellClassesOfMap(this.map);
-        //for (let coordY = 0; coordY < pBoard.length; coordY++) {
         for (const coordY in pBoard) {
             $('table#board').append($('<tr id="line_' + coordY + '"></tr>'));
             for (const coordX in pBoard[coordY]) {
@@ -651,10 +535,7 @@ function KeyboardListener() {
         switch(pKey) {
             //escape
             case 27:
-                $('#choose_cell').hide(200, function () {
-                    $('#control_panel').fadeIn(200);
-                });
-
+                $('span#close_cell_menu').click();
                 break;
             //left arrow
             case 37:
@@ -712,8 +593,8 @@ function KeyboardListener() {
             case 68:
                 $('#robot_grey_choosebox').click();
                 break;
-            default:
-                console.log(pKey);
+//            default:
+                //console.log(pKey);
         }
     };
 
@@ -735,22 +616,27 @@ function switchSettingsScreen(pTargetEl) {
     $('#asking strong').text('(' + (parseInt(cellCoordX) + 1) + ';' + (parseInt(cellCoordY) + 1) + ')');
 }
 
+// if N ==> N
+// if W ==> W
+// if NW ==> B
+// else ==> C
 function translateCellCode(pCode) {
+    ret_code = '';
 
-}
-
-function updateFormatCode(pMap) {
-    textAreaEl = $('textarea#format_code');
-    textAreaEl.val('');
-
-    for (lineArray of pMap) {
-        for (cellValue of lineArray) {
-            textAreaEl.val(textAreaEl.val() + cellValue);
-        }
-
-        textAreaEl.val(textAreaEl.val() + '\n');
+    if (pCode.includes('N') && pCode.includes('W')) {
+        ret_code = 'B';
+    } else if (pCode.includes('N')) {
+        ret_code = 'N';
+    } else if (pCode.includes('W')) {
+        ret_code = 'W';
+    } else {
+        ret_code = 'C';
     }
+
+    return ret_code;
+
 }
+
 
 /*
  * MAIN
@@ -758,6 +644,7 @@ function updateFormatCode(pMap) {
 $(function () {
     let boardGame = new BoardGame(g_board);
     let keyboardListener = new KeyboardListener();
+    let mapCodeDisplayer = new MapCodeDisplayer(boardGame);
 
     $('#choose_cell, .robot, #format_code').hide(0);
     boardGame.drawGrid(boardGame.map);
@@ -770,7 +657,6 @@ $(function () {
         $('#control_panel').hide(100);
         switchSettingsScreen(e.currentTarget);
         $('#choose_cell').show(200);
-        updateFormatCode(boardGame.map);
     });
 
     $('.cell_choosebox, .robot_choosebox, .mirror_choosebox').click(function (e) {
@@ -815,23 +701,18 @@ $(function () {
     });
 
     $('#show_format_code').click(function () {
-        updateFormatCode(boardGame.map);
-        textAreaEl.slideToggle(200).select();
+        mapCodeDisplayer.updateFormatCode();
+        $('textarea#format_code').slideToggle(200);
     });
 
-    let manager = new RobotManager(boardGame);
-    let moves = [
-        {'blue': 'N'},
-        {'red': 'E'},
-        {'blue': 'S'},
-        {'yellow': 'N'},
-        {'grey': 'W'},
-        {'blue': 'E'},
-        {'blue': 'S'},
-        {'blue': 'W'},
-        {'red': 'N'},
-        {'red': 'E'},
-        {'red': 'S'},
-        {'red': 'W'}
-    ];
+    $('span#close_cell_menu').click(function () {
+        mapCodeDisplayer.updateFormatCode();
+        $('#choose_cell').hide(200, function () {
+            $('#control_panel').fadeIn(200);
+        });
+    });
+
+    $('textarea#format_code').click(function (e) {
+        $(e.currentTarget).select();
+    });
 });

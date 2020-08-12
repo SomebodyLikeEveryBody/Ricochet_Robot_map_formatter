@@ -834,7 +834,4 @@ $(function () {
         {'red': 'S'},
         {'red': 'W'}
     ];
-
-    //manager.doMoves(moves);
-    manager.doMoves(aleat());
 });

@@ -63,16 +63,24 @@ function MapCodeDisplayer(pBoardGame) {
     this.boardGame = pBoardGame;
 
     this.updateFormatCode = function () {
-        let textAreaEl = $('textarea#format_code');
-        textAreaEl.val('');
+        let textValue = 'board 16 16\n';
 
         for (lineArray of this.boardGame.map) {
             for (cellValue of lineArray) {
-                textAreaEl.val(textAreaEl.val() + translateCellCode(cellValue) + ' ');
+                textValue += translateCellCode(cellValue) + ' ';
             }
 
-            textAreaEl.val(textAreaEl.val() + '\n');
+            textValue = textValue.trim() + '\n';
         }
+
+        textValue += 'mirrors 0\nrobots 5\n'
+            + this.boardGame.robots.grey.x + ' ' + this.boardGame.robots.grey.y + '\n'
+            + this.boardGame.robots.red.x + ' ' + this.boardGame.robots.red.y + '\n'
+            + this.boardGame.robots.green.x + ' ' + this.boardGame.robots.green.y + '\n'
+            + this.boardGame.robots.yellow.x + ' ' + this.boardGame.robots.yellow.y + '\n'
+            + this.boardGame.robots.blue.x + ' ' + this.boardGame.robots.blue.y + '\ntarget 0 13 12 2';
+
+        $('textarea#format_code').val(textValue);
     }
 }
 

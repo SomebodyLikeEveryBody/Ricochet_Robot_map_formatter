@@ -378,6 +378,11 @@ table#board
     background-color: #bdbbdb;
 }
 
+td.cell
+{
+    width: 6.25%;
+    height: 6.25%;
+}
 td.cell:hover
 {
     background-color: grey;

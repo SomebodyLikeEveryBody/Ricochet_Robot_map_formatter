@@ -7,7 +7,7 @@
  *
  * */
 
-g_board = [
+g_defaultBoard = [
 /*1*/       ['NW', 'NE', 'WN', 'NS', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'NE', 'WN', 'N', 'N', 'NE'],
 /*2*/       ['W', '0', 'E', 'WN', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'E'],
 /*3*/       ['W', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'ES', 'W', 'S', '0', 'E'],
@@ -27,47 +27,32 @@ g_board = [
 ];
 
 
-function beautiful () {
-    let dirs = ['N', 'S', 'E', 'W'];
-    let lRobots = ['blue', 'yellow', 'green', 'red', 'grey'];
-    let dir = '';
-    let robot = '';
-    for (let i = 0; i < 1000; i++) {
-        dir = dirs[Math.floor(Math.random() * dirs.length)];
-        robot = lRobots[Math.floor(Math.random() * lRobots.length)];
-        manager.moveRobot(robot, dir);
-        console.log(dir);
-    }
-}
-
-function aleat() {
-    let dirs = ['N', 'S', 'E', 'W'];
-    let lRobots = ['blue', 'yellow', 'green', 'red', 'grey'];
-    let dir = '';
-    let robot = '';
-    let moves = []
-    for (let i = 0; i < 100; i++) {
-        dir = dirs[Math.floor(Math.random() * dirs.length)];
-        robot = lRobots[Math.floor(Math.random() * lRobots.length)];
-        eval('moves.push({' + robot + ': dir})');
-    }
-
-    return (moves);
-}
-
-/*
+ /*
+ * MapCodeDisplayer:
+ * ------------
+ * Object that manages the translation and display of the map code in the textarea,
+ * so that the user can copy it to go to Kevin Cox's website
  *
+ * Contains:
+ * - this.updateFormatCode()
+ * - this.translateCellCode(pCode)
  *
  * */
 function MapCodeDisplayer(pBoardGame) {
     this.boardGame = pBoardGame;
+
+    /*
+     * this.updateFormatCode():
+     * Parse the map, generate the code compatible with Kevin Cox's website and display it
+     * in textarea#format_code
+     * */
 
     this.updateFormatCode = function () {
         let textValue = 'board 16 16\n';
 
         for (lineArray of this.boardGame.map) {
             for (cellValue of lineArray) {
-                textValue += translateCellCode(cellValue) + ' ';
+                textValue += this.translateCellCode(cellValue) + ' ';
             }
 
             textValue = textValue.trim() + '\n';
@@ -81,6 +66,27 @@ function MapCodeDisplayer(pBoardGame) {
             + this.boardGame.robots.blue.x + ' ' + this.boardGame.robots.blue.y + '\ntarget 0 13 12 2';
 
         $('textarea#format_code').val(textValue);
+    }
+
+    /*
+     * this.translateCellCode(pCode):
+     * Take a cellCode like 'EWS' or 'E' or 'W' or 'NWES' etc
+     * and return the cellCode compatible with Kevin Cox's website ('C' or 'N' or 'W' or 'B')
+     * */
+    this.translateCellCode = function (pCode) {
+        ret_code = '';
+
+        if (pCode.includes('N') && pCode.includes('W')) {
+            ret_code = 'B';
+        } else if (pCode.includes('N')) {
+            ret_code = 'N';
+        } else if (pCode.includes('W')) {
+            ret_code = 'W';
+        } else {
+            ret_code = 'C';
+        }
+
+        return ret_code;
     }
 }
 
@@ -240,6 +246,19 @@ function BoardChecker() {
     };
 }
 
+/*
+ * BoardGame:
+ * ------------
+ * Object which is able to check letters, wall patterns or whole boards to tell if they are correctly filled
+ * Contains:
+ * - this.coordsNotInArray(pCoords)
+ * - this.isLetterWall(pLetter)
+ * - this.checkLetter(pLetter)
+ * - this.checkCellPattern(pStrPattern)
+ * - this.checkCoords(pCoords)
+ * - this.checkBoard(pBoard)
+ *
+ * */
 function BoardGame(pBoard) {
     this.emptyMap = [
                         ['NW', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'NE'],
@@ -534,6 +553,19 @@ function BoardGame(pBoard) {
         }
     };
 
+    /*
+     * DeepCopy this.emptyMap into this.map,
+     * and then update the display of the whole map
+     * */
+    this.clearMap = function () {
+        this.map = [...this.emptyMap].map((el) => [...el]);
+
+        for (let yCoord = 0; yCoord < this.map.length; yCoord++) {
+            for (let xCoord = 0; xCoord < this.map[yCoord].length; xCoord++) {
+                this.updateCellDisplay({x: xCoord, y: yCoord});
+            }
+        }
+    };
 
     this.defineMap();
 }
@@ -624,33 +656,13 @@ function switchSettingsScreen(pTargetEl) {
     $('#asking strong').text('(' + (parseInt(cellCoordX) + 1) + ';' + (parseInt(cellCoordY) + 1) + ')');
 }
 
-// if N ==> N
-// if W ==> W
-// if NW ==> B
-// else ==> C
-function translateCellCode(pCode) {
-    ret_code = '';
-
-    if (pCode.includes('N') && pCode.includes('W')) {
-        ret_code = 'B';
-    } else if (pCode.includes('N')) {
-        ret_code = 'N';
-    } else if (pCode.includes('W')) {
-        ret_code = 'W';
-    } else {
-        ret_code = 'C';
-    }
-
-    return ret_code;
-
-}
 
 
 /*
  * MAIN
  * */
 $(function () {
-    let boardGame = new BoardGame(g_board);
+    let boardGame = new BoardGame(g_defaultBoard);
     let keyboardListener = new KeyboardListener();
     let mapCodeDisplayer = new MapCodeDisplayer(boardGame);
 
@@ -722,5 +734,9 @@ $(function () {
 
     $('textarea#format_code').click(function (e) {
         $(e.currentTarget).select();
+    });
+
+    $('button#clear_map').click(function () {
+        boardGame.clearMap();        
     });
 });

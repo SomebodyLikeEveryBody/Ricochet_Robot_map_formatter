@@ -28,8 +28,8 @@ body
     top: 0px;
     left: 0px;
     width: 100%;
-    height: 100%;
     background-color: grey;
+    height: 100%;
 }
 
 .robot_choosebox_container
@@ -130,8 +130,8 @@ section#cell_catalog
 
 div.cell_choosebox
 {
-    width: 14vh;
-    height: 14vh;
+    width: 7vw;
+    height: 7vw;
     border: none;
     background-color: grey;
     display: inline-block;
@@ -389,18 +389,74 @@ span#close_cell_menu
     cursor: pointer;
 }
 
-@media only screen and (max-width: 1000px) {
+@media (max-width:1500px) and (min-width:1350px)
+{
+    div.cell_choosebox
+    {
+        width: 5vw;
+        height: 5vw;
+    }
+}
+
+
+@media (max-width:1350px) and (min-width:10px)
+{
     body
     {
         flex-direction: column;
     }
 
-
-    svg#board
+    table#board
     {
+        width: calc(50vh - 10px);
+        height: calc(50vh - 10px);
+        margin: auto;
+        margin-bottom: 30px;
+        background-color: var(--c-grid);
+        border-spacing: 3px;
+        border: white 5px solid;
     }
 
     section#settings
     {
+        width: auto;
+        height: calc(50vh - 70px);
+    }
+
+    section#control_panel
+    {
+        overflow: auto;
+    }
+
+    .robot_choosebox_container, .mirror_choosebox_container
+    {
+        height: 7vh;
+    }
+
+    .robot_choosebox, .mirror_choosebox
+    {
+        width: 10%;
+    }
+
+    div.cell_choosebox
+    {
+        width: 7vh;
+        height: 7vh;
+        border: none;
+        background-color: grey;
+        display: inline-block;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        border: white 1px solid;
+        cursor: pointer;
+    }
+}
+
+@media (max-width:475px)
+{
+    table#board
+    {
+        width: calc(45vh - 10px);
+        height: calc(45vh - 10px);
     }
 }

@@ -100,7 +100,9 @@ function MapCodeDisplayer(pBoardGame) {
  * - this.checkLetter(pLetter)
  * - this.checkCellPattern(pStrPattern)
  * - this.checkCoords(pCoords)
+ * - this.patternHasWall(pStrPattern, pLetterWall)
  * - this.checkBoard(pBoard)
+ * - this.checkCoordsAreDistincts(pCoords, pArrayCoords)
  *
  * */
 function BoardChecker() {
@@ -138,7 +140,6 @@ function BoardChecker() {
     /*
      * this.checkLetter(pLetter):
      * Checks if the letter is an authorized letter for a cell pattern (NSEW0)
-     *
      * */
     this.checkLetter = function (pLetter) {
         if (!(this.isLetterWall(pLetter) || pLetter === '0')) {
@@ -151,7 +152,6 @@ function BoardChecker() {
     /*
      * this.checkCellPattern(pStrPattern):
      * checks if a cell pattern is correct ('0' or a set composed by elements {'N', 'S', 'E', 'W'})
-     *
      * */
     this.checkCellPattern = function (pStrPattern) {
         if (pStrPattern === '0') {
@@ -171,7 +171,6 @@ function BoardChecker() {
     /*
      * this.checkCoords(pCoords):
      * Checks if coords are ([0-16];[0-16]);
-     *
      * */
     this.checkCoords = function (pCoords) {
         if (pCoords.x >= 0 && pCoords.x <= 15 && pCoords.y >= 0 && pCoords.y <= 15) {
@@ -183,7 +182,7 @@ function BoardChecker() {
 
     /*
      * this.patternHasWall(pStrPattern, pLetterWall):
-     *
+     * Checks if a pattern contain a letterWall
      * */
     this.patternHasWall = function (pStrPattern, pLetterWall) {
         return (pStrPattern.split('').indexOf(pLetterWall) !== -1);
@@ -191,12 +190,11 @@ function BoardChecker() {
 
     /*
      * this.checkBoard(pBoard):
-     * checks if board is correctly formatted, that means
+     * checks if board is correctly formatted, which means
      * - is an array [16][16]
      * - each element is String
      * - each element is length [1 ; 4]
      * - each element is a '0' or a set containing one or more elements from NSEW
-     *
      * */
     this.checkBoard = function (pBoard) {
         if ((typeof (pBoard) !== typeof ([])) || (pBoard.length !== 16)) {
@@ -231,7 +229,6 @@ function BoardChecker() {
      * and an object pArrayCoords that is kind of
      * {element1: {x: coordX, y: coordY}, element2: {x: coordX, y: coordY}, ..., elementN: {x: coordX, y: coordY}}
      * and check if no element of the object has the coords pCoords
-     *
      * */
     this.checkCoordsAreDistincts = function (pCoords, pArrayCoords) {
         let tempCoords = {};
@@ -251,12 +248,23 @@ function BoardChecker() {
  * ------------
  * Object which is able to check letters, wall patterns or whole boards to tell if they are correctly filled
  * Contains:
- * - this.coordsNotInArray(pCoords)
- * - this.isLetterWall(pLetter)
- * - this.checkLetter(pLetter)
- * - this.checkCellPattern(pStrPattern)
- * - this.checkCoords(pCoords)
- * - this.checkBoard(pBoard)
+ * - this.robots
+ * - this.mirrors
+ * - this.defineMap()
+ * - this.getCellClassesOfMap(pMap)
+ * - this.drawGrid(pBoard)
+ * - this.addWallToCell(pCellCoords, pLetterWall)
+ * - this.removeWallToCell(pCellCoords, pLetterWall)
+ * - this.removeComplementaryWallsOf(pCoords)
+ * - this.addComplementaryWallOf(pCoords, pLetterWall)
+ * - this.updateCellDisplay(pCoords)
+ * - this.addBorderWallsTo(pCoords)
+ * - this.setCellPattern(pCoords, pLettersPattern)
+ * - this.rand(pMin, pMax)
+ * - this.randomPlaceRobots(pArrayRobotsCoords)
+ * - this.placeRobots()
+ * - this.moveRobotTo(pRobotEl, pCoords)
+ * - this.clearMap()
  *
  * */
 function BoardGame(pBoard) {
@@ -279,6 +287,10 @@ function BoardGame(pBoard) {
                         ['SW', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'SE'],
     ];
 
+    /*
+     * this.robots:
+     * Object containing all coords of robots on the map
+     * */
     this.robots = {
         blue: {x: 0, y: 6},
         red: {x: 0, y: 0},
@@ -287,6 +299,10 @@ function BoardGame(pBoard) {
         grey: {x: 4, y: 0},
     };
 
+    /*
+     * this.mirrors:
+     * Object containing all coords of mirrors on the map
+     * */
     this.mirrors = {
         blue: null,
         red: null,
@@ -301,7 +317,6 @@ function BoardGame(pBoard) {
     /*
      * this.defineMap():
      * initiate the BoardGameObject by affecting the map and drawing it on the board
-     *
      * */
     this.defineMap = function () {
         if (!pBoard) {
@@ -409,6 +424,10 @@ function BoardGame(pBoard) {
         this.removeWallToCell({x: (pCoords.x + 1), y: pCoords.y}, 'W');
     };
 
+    /*
+     * this.addComplementaryWallsOf(pCoords, pLetterWall):
+     * Read the pattern of a cell and add walls at the other side of each border that has a wall
+     * */
     this.addComplementaryWallOf = function (pCoords, pLetterWall) {
         if (this.boardChecker.isLetterWall(pLetterWall) === true) {
             switch (pLetterWall) {
@@ -432,7 +451,7 @@ function BoardGame(pBoard) {
     };
 
     /* this.updateCellDisplay(pCoords):
-     *
+     * modifies the td#coord_y_x class attribute to show the cell with the walls defined in map[y][x]
      * */
     this.updateCellDisplay = function (pCoords) {
         let tdCellElement = $('td#coord_' + pCoords.y + '_' + pCoords.x);
@@ -570,7 +589,20 @@ function BoardGame(pBoard) {
     this.defineMap();
 }
 
+/*
+ * KeyboardListener:
+ * ------------
+ * Object that listen when user hit keys on the webpage to manage shortcuts features
+ * Contains:
+ * - this.doWhenIsPressed(pKey)
+ * - this.activate()
+ *
+ * */
 function KeyboardListener() {
+
+    /*
+     * Links keys pressed to actions,
+     * */
     this.doWhenIsPressed = function (pKey) {
         switch(pKey) {
             //escape
@@ -638,6 +670,9 @@ function KeyboardListener() {
         }
     };
 
+    /*
+     * Generate the eventListener(keyPress) on the web page
+     * */
     this.activate = function () {
         let that = this;
         $(document).keydown(function (e) {

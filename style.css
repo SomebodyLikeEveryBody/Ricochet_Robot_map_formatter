@@ -22,7 +22,7 @@ body
     flex-direction: row;
 }
 
-#welcome_screen
+#welcome_all
 {
     position: absolute;
     top: 0px;
@@ -389,7 +389,7 @@ span#close_cell_menu
     cursor: pointer;
 }
 
-@media (max-width:1500px) and (min-width:1350px)
+@media screen and (max-width:1500px) and (min-width:1350px)
 {
     div.cell_choosebox
     {
@@ -399,7 +399,7 @@ span#close_cell_menu
 }
 
 
-@media (max-width:1350px) and (min-width:10px)
+@media screen and (max-width:1350px) and (min-width:10px)
 {
     body
     {
@@ -452,7 +452,7 @@ span#close_cell_menu
     }
 }
 
-@media (max-width:475px)
+@media screen and (max-width:475px)
 {
     table#board
     {

@@ -37,7 +37,9 @@ g_defaultBoard = [
  * - this.getFormatCode()
  * - this.updateFormatCode()
  * - this.translateCellCode(pCode)
- * - this.generateMapUrl()
+ * - this.getBoardMetaDatas(pFormatCode)
+ * - this.encodeBoardMetaDatas(pBoardMetaDatas)
+ * - this.getMapUrlCode()
  *
  * */
 function MapCodeDisplayer(pBoardGame) {

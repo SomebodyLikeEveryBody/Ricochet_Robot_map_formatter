@@ -32,6 +32,8 @@ g_defaultBoard = [
  * ------------
  * Object that manages the translation and display of the map code in the textarea,
  * so that the user can copy it to go to Kevin Cox's website
+ * 
+ * Thanks to Kevin Cox for implementing this.getBoardMetaDatas() and this.encodeBoardMetaDatas() methods
  *
  * Contains:
  * - this.getFormatCode()

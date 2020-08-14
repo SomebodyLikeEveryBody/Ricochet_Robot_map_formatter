@@ -816,6 +816,7 @@ $(function () {
     let boardGame = new BoardGame(g_defaultBoard);
     let keyboardListener = new KeyboardListener();
     let mapCodeDisplayer = new MapCodeDisplayer(boardGame);
+        mapCodeDisplayer.updateFormatCode();
 
     $('#choose_cell, .robot, #format_code').hide(0);
     boardGame.drawGrid(boardGame.map);

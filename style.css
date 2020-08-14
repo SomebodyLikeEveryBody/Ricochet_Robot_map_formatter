@@ -392,6 +392,7 @@ span#close_cell_menu
 {
     float: right;
     cursor: pointer;
+    font-weight: bold;
 }
 
 @media screen and (max-width:1500px) and (min-width:1350px)

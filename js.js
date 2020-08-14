@@ -34,19 +34,26 @@ g_defaultBoard = [
  * so that the user can copy it to go to Kevin Cox's website
  *
  * Contains:
+ * - this.getFormatCode()
  * - this.updateFormatCode()
  * - this.translateCellCode(pCode)
+ * - this.generateMapUrl()
  *
  * */
 function MapCodeDisplayer(pBoardGame) {
     this.boardGame = pBoardGame;
 
     /*
-     * this.updateFormatCode():
+     * returns the formated code shown in the textarea
+     * */
+    this.getFormatCode = function () {
+        return ($('textarea#format_code').val());
+    }
+
+    /*
      * Parse the map, generate the code compatible with Kevin Cox's website and display it
      * in textarea#format_code
      * */
-
     this.updateFormatCode = function () {
         let textValue = 'board 16 16\n';
 
@@ -69,7 +76,6 @@ function MapCodeDisplayer(pBoardGame) {
     }
 
     /*
-     * this.translateCellCode(pCode):
      * Take a cellCode like 'EWS' or 'E' or 'W' or 'NWES' etc
      * and return the cellCode compatible with Kevin Cox's website ('C' or 'N' or 'W' or 'B')
      * */
@@ -87,6 +93,114 @@ function MapCodeDisplayer(pBoardGame) {
         }
 
         return ret_code;
+    }
+
+    /*
+     * Parses the text passed as argument, that is supposed to be text shown in the textarea, 
+     * and stores the datas into a dict which is returned, in order to be encoded
+     * */
+    this.getBoardMetaDatas = function (pFormatCode) {    
+        let retBoardMetaDatas = {
+            verticalWalls: {},
+            horizontalWalls: {},
+            robots: [],
+            targetColor: 0,
+            targetLocation: [0, 0],
+        }
+
+        let lines = pFormatCode.split("\n");
+    
+        //get the parameters of the first line
+        var [keyword, sizeX, sizeY] = lines.shift().split(" ");
+        if (keyword != "board") {
+            throw "Expected keyword board";
+        }
+        
+        //parse the map
+        for (let y = 0; y < sizeY; y++) {
+            lines.shift()
+                .split(" ")
+                .forEach((cell, x) => {
+                    if (cell == "B" || cell == "N") {
+                        retBoardMetaDatas.horizontalWalls[[x,y]] = true
+                    }
+                    if (cell == "B" || cell == "W") {
+                        retBoardMetaDatas.verticalWalls[[x,y]] = true
+                    }
+                });
+        }
+        
+        if (lines.shift() != "mirrors 0") {
+            throw "Expected mirrors 0";
+        } 
+        
+        //manage robots
+        var [keyword, nbRobots] = lines.shift().split(" ");
+        for (let robotIndex = 0; robotIndex < nbRobots; robotIndex++) {
+            let [x, y] = lines.shift().split(" ");
+            retBoardMetaDatas.robots.push([+x, +y]);
+        }
+        
+        var [keyword, _, x, y, color] = lines.shift().split(" ");
+        retBoardMetaDatas.targetColor = +color;
+        retBoardMetaDatas.targetLocation = [+x, +y];
+        
+        return retBoardMetaDatas;
+    }
+    
+    /*
+     * Takes a dict returned by this.getBoardMetaDatas() method and generate an encoded64 string
+     * in order to use it to the Kevin Cox's url
+     * */
+    this.encodeBoardMetaDatas = function (pBoardMetaDatas) {
+        let retCode = [];
+        
+        retCode.push(16, 16);
+        for (let x = 0; x < 16; x++) {
+            let bits = 0;
+            for (let y = 15; y >= 0; y--) {
+                bits <<= 1;
+                if (pBoardMetaDatas.horizontalWalls[[x, y]]) {
+                    bits |= 1;
+                }
+            }
+    
+            retCode.push(bits & 0xFF, bits >> 8);
+        }
+    
+        for (let y = 0; y < 16; y++) {
+            let bits = 0;
+            for (let x = 15; x >= 0; x--) {
+                bits <<= 1;
+                if (pBoardMetaDatas.verticalWalls[[x, y]]) {
+                    bits |= 1;
+                }
+            }
+    
+            retCode.push(bits & 0xFF, bits >> 8);
+        }
+        
+        retCode.push(0); // Mirrors
+        
+        retCode.push(pBoardMetaDatas.robots.length);
+        for (let robot of pBoardMetaDatas.robots) {
+            retCode.push(robot[0] << 4 | robot[1]);
+        }
+        
+        retCode.push(pBoardMetaDatas.targetLocation[0] << 4 | pBoardMetaDatas.targetLocation[1]);
+        retCode.push(pBoardMetaDatas.targetColor);
+        
+        return btoa(String.fromCharCode(...retCode))
+            .replaceAll("+", "-")
+            .replaceAll("/", "_");
+    }
+
+    /*
+     * return the url to go to the Kevin Cox's website with the corresponding map
+     * in order to use it to the Kevin Cox's url
+     * */
+    this.getMapUrlCode = function () {
+        return (this.encodeBoardMetaDatas(this.getBoardMetaDatas(this.getFormatCode())));
     }
 }
 
@@ -327,7 +441,7 @@ function BoardGame(pBoard) {
             this.map = pBoard;
         } else {
             this.map = [];
-            console.log('ERROR: Map not well formated');
+            throw 'ERROR: Map not well formated';
         }
     };
 
@@ -774,4 +888,11 @@ $(function () {
     $('button#clear_map').click(function () {
         boardGame.clearMap();        
     });
+
+    $('button#go_play').click(function () {
+        window.open('https://ricochetrobots.kevincox.ca/#s=' + mapCodeDisplayer.getMapUrlCode());
+    });
+
+
+
 });
